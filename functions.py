@@ -35,4 +35,5 @@ def compute_commission(benefit, percent_commission, pow, pos):
 def gravity_probability(node) -> float:
     if node.parent is None:
         return 1.0  # Root node should return 100% probability or some default
-    return node.size / node.parent.size
+    probability = node.size / node.parent.size
+    return random.random() < probability 
