@@ -7,6 +7,7 @@ class NodeItem:
         self.parent = parent  # Store parent as a NodeItem, not just the parent_id
         self.name = name
         self.size = 1
+        self.commission = 0.0  # Commission with default value 0.0
         self.children = []
 
     def add_child(self, child_node):
