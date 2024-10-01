@@ -1,5 +1,6 @@
 import csv
 import json
+import functions
 from collections import defaultdict
 from constants import BENEFIT
 
@@ -14,17 +15,51 @@ class NodeItem:
     def add_child(self, child_node):
         self.children.append(child_node)
         self.size += child_node.size
+        self.distribute_commission(child_node)
+
+    # Method to distribute commission based on the node instance
+    def distribute_commission(self, child_node):
+        # Get the ancestors from the current child node up to the root (self)
+        ancestors = []
+        current_node = self
+        while current_node is not None:
+            ancestors.append(current_node)
+            current_node = current_node.parent
+
+        # Set initial benefit
+        benefit = BENEFIT
+
+        # Distribute commission among the ancestors
+        for i, ancestor in enumerate(ancestors):
+            # Fetch the commission rules
+            d = i+1
+            percent_commission = functions.get_commission_percent_by_distant(d)
+            pow = functions.get_prob_backward_pow_by_distant(d)
+            pos = functions.get_prob_backward_pos_of_user(ancestor)
+
+            # Calculate the commission
+            commission = functions.compute_commission(
+                benefit=benefit,
+                percent_commission=percent_commission,
+                pow=pow,
+                pos=pos
+            )
+
+            # Deduct the commission from the benefit and add it to the ancestor's total
+            benefit -= commission
+            ancestor.commission += commission    
 
     def to_dict(self):
         return {
             "name": self.name,
             "size": self.size,
+            "commission": self.commission,
             "children": [child.to_dict() for child in self.children]
         }
 
     def __repr__(self):
         parent_name = self.parent.name if self.parent else "None"
-        return f"{self.name} (parent: {parent_name}, size: {self.size}, children: {self.children})"
+        return f"{self.name} (parent: {parent_name}, commission: {self.commission}, size: {self.size}, children: {self.children})"
 
 class DirectTreeGenerator:
     def __init__(self, csv_file):
@@ -74,53 +109,8 @@ class DirectTreeGenerator:
         for root_child in root_children:
             root.add_child(build_node(root_child, root))
 
+        # print(root)
         return root
-
-    # Method to get a list of ancestors (nodes) from a node up to the root
-    def get_ancestors_to_root(self, node):
-        ancestors = []
-        current_node = node
-        while current_node.parent is not None:
-            ancestors.append(current_node)
-            current_node = current_node.parent
-        return ancestors
-
-    # Method to distribute commission based on the node instance
-    def distribute_commission(self, node):
-        # Ensure node exists
-        if not node:
-            print("Error: Node not found in the tree.")
-            return
-
-        # Get ancestors up to the root
-        ancestors = self.get_ancestors_to_root(node)
-        
-        # Set the initial benefit
-        benefit = BENEFIT
-
-        # Traverse through ancestors to calculate commission
-        for i, ancestor_node in enumerate(ancestors):
-            # Get commission configuration for this level
-            percent_commission = get_commission_percent_by_level(level=i)
-            pow = get_backward_pow_by_level(level=i)
-            pos = get_backward_pos_of_user(user_id=ancestor_node.name)
-
-            # Compute commission based on probability
-            commission = compute_commission(
-                benefit=benefit,
-                percent_commission=percent_commission,
-                pow=pow,
-                pos=pos
-            )
-
-            # Subtract the commission from the benefit
-            benefit -= commission
-
-            # Update the ancestor's commission
-            ancestor_node.commission += commission
-
-        # Remaining benefit after commission distribution
-        print(f"Remaining benefit (after commission distribution): {benefit}")
 
     # Method to generate HTML content with embedded tree data
     def generate_html(self, tree_data):

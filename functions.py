@@ -1,10 +1,11 @@
-from constants import INITIAL_COMMISSION_PERCENT, ADDITIONAL_POS_PROBABILITY_PERCENT
+import random
+from constants import INITIAL_COMMISSION_PERCENT, INITIAL_POS_PROBABILITY_PERCENT
 
 def get_commission_percent_by_distant(d):
     return INITIAL_COMMISSION_PERCENT / (2 ** (d - 1))
 
 def get_prob_backward_pos_of_user(user):
-    return ADDITIONAL_POS_PROBABILITY_PERCENT / 100  # 10% for now
+    return INITIAL_POS_PROBABILITY_PERCENT / 100  # 10% for now
 
 def get_prob_backward_pow_by_distant(d):
     if d == 1:
