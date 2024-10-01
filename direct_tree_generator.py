@@ -3,8 +3,8 @@ import json
 from collections import defaultdict
 
 class NodeItem:
-    def __init__(self, name, parent_id=None):
-        self.parent_id = parent_id
+    def __init__(self, name, parent=None):
+        self.parent = parent  # Store parent as a NodeItem, not just the parent_id
         self.name = name
         self.size = 1
         self.children = []
@@ -21,12 +21,14 @@ class NodeItem:
         }
 
     def __repr__(self):
-        return f"{self.name} (parent_id: {self.parent_id}, size: {self.size}, children: {self.children})"
+        parent_name = self.parent.name if self.parent else "None"
+        return f"{self.name} (parent: {parent_name}, size: {self.size}, children: {self.children})"
 
 class DirectTreeGenerator:
     def __init__(self, csv_file):
         self.csv_file = csv_file
         self.commission_list = []
+        self.node_map = {}
 
     # Method to read and parse the CSV file into a commission list
     def parse_csv_to_commission_list(self):
@@ -42,7 +44,7 @@ class DirectTreeGenerator:
             print(f"Error: File '{self.csv_file}' not found.")
             exit(1)
 
-    # Method to build the tree structure with size
+    # Method to build the tree structure with size and store nodes in node_map
     def build_tree(self):
         children_map = defaultdict(list)
         all_nodes = set()
@@ -57,12 +59,14 @@ class DirectTreeGenerator:
         root_children = all_nodes - child_nodes
 
         root = NodeItem("GENESIS", None)
+        self.node_map["GENESIS"] = root
 
-        def build_node(person, parent_id):
-            node = NodeItem(person, parent_id)
+        def build_node(person, parent_node):
+            node = NodeItem(person, parent_node)  # Set the parent as the actual NodeItem
+            self.node_map[person] = node  # Store node in node_map with its ID
 
             for child in children_map.get(person, []):
-                child_node = build_node(child, person)
+                child_node = build_node(child, node)
                 node.add_child(child_node)
 
             return node
@@ -71,6 +75,22 @@ class DirectTreeGenerator:
             root.add_child(build_node(root_child, root))
 
         return root
+
+    # Method to get a list of ancestors from a node to the root
+    def get_backward_node_list_to_root(self, node_id):
+        result = []
+        current_node = self.node_map.get(node_id)
+
+        if current_node is None:
+            print(f"Error: Node '{node_id}' not found in the tree.")
+            return []
+
+        # Traverse upwards using the parent pointer
+        while current_node.parent is not None:
+            result.append(current_node.parent.name)
+            current_node = current_node.parent
+
+        return result
 
     # Method to generate HTML content with embedded tree data
     def generate_html(self, tree_data):
