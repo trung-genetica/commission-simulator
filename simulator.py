@@ -10,7 +10,7 @@ class Command(str, Enum):
         return [cmd.value for cmd in Command]
 
 
-class TreeSimulator:
+class Simulator:
     input_file = ""
     referral_log = []
 
@@ -53,13 +53,13 @@ class TreeSimulator:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Tree Simulator")
+    parser = argparse.ArgumentParser(description="Simulator")
 
     parser.add_argument("input_file", help="Name of the input file")
 
     args = parser.parse_args(sys.argv[1:])
 
-    simulator = TreeSimulator()
+    simulator = Simulator()
     simulator.load_input_file(args.input_file)
     simulator.validate_input()
 

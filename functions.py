@@ -17,3 +17,16 @@ def get_prob_backward_pow_by_distant(d):
         return 0.10  # 10%
     else:  # For d > 4
         return 0.10 - (0.01 * (d - 4))  # Decrease by 1% per distant beyond 4, allowing probabilities to become negative.
+
+def compute_probability(pow: float, pos: float) -> bool:
+    probability = pow + pos
+    return random.random() < probability     
+
+def compute_commission(benefit, percent_commission, pow, pos):
+    result = 0
+
+    if not compute_probability(pow=pow, pos=pos):
+        return result
+
+    result = benefit * percent_commission / 100
+    return result       

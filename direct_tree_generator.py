@@ -3,7 +3,8 @@ import json
 from collections import defaultdict
 
 class NodeItem:
-    def __init__(self, name):
+    def __init__(self, name, parent_id=None):
+        self.parent_id = parent_id
         self.name = name
         self.size = 1
         self.children = []
@@ -20,7 +21,7 @@ class NodeItem:
         }
 
     def __repr__(self):
-        return f"{self.name} (size: {self.size}, children: {self.children})"
+        return f"{self.name} (parent_id: {self.parent_id}, size: {self.size}, children: {self.children})"
 
 class DirectTreeGenerator:
     def __init__(self, csv_file):
@@ -47,32 +48,27 @@ class DirectTreeGenerator:
         all_nodes = set()
         child_nodes = set()
 
-        # Xây dựng bản đồ quan hệ parent-child
         for parent, child in self.commission_list:
             children_map[parent].append(child)
             all_nodes.add(parent)
             all_nodes.add(child)
             child_nodes.add(child)
 
-        # Xác định các node không có cha (gốc)
         root_children = all_nodes - child_nodes
 
-        # Tạo node gốc với tên "LIFEAI"
-        root = NodeItem("LIFEAI")
+        root = NodeItem("GENESIS", None)
 
-        # Hàm đệ quy để xây dựng các node
-        def build_node(person):
-            node = NodeItem(person)
+        def build_node(person, parent_id):
+            node = NodeItem(person, parent_id)
 
             for child in children_map.get(person, []):
-                child_node = build_node(child)
-                node.add_child(child_node)  # Thêm node con và tính size
+                child_node = build_node(child, person)
+                node.add_child(child_node)
 
             return node
 
-        # Thêm các node gốc con vào node gốc "LIFEAI"
         for root_child in root_children:
-            root.add_child(build_node(root_child))
+            root.add_child(build_node(root_child, root))
 
         return root
 
