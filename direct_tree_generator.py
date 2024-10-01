@@ -26,17 +26,27 @@ class DirectTreeGenerator:
     # Method to build the tree structure
     def build_tree(self):
         children_map = defaultdict(list)
-        all_nodes = set()
-        child_nodes = set()
+        all_nodes = []          # List to maintain order
+        all_nodes_set = set()   # Set to track uniqueness
+        child_nodes = set()     # Set to track child nodes
 
         # Create a map of parent-child relationships
         for parent, child in self.commission_list:
             children_map[parent].append(child)
-            all_nodes.add(parent)
-            all_nodes.add(child)
+        
+            # Add to all_nodes if not already present (to maintain order and uniqueness)
+            if parent not in all_nodes_set:
+                all_nodes.append(parent)
+                all_nodes_set.add(parent)
+            if child not in all_nodes_set:
+                all_nodes.append(child)
+                all_nodes_set.add(child)
+        
+            # Track child nodes
             child_nodes.add(child)
 
-        root_children = all_nodes - child_nodes  # Find root nodes (those with no parent)
+        # Maintain order while finding root nodes (those with no parent)
+        root_children = [node for node in all_nodes if node not in child_nodes]
 
         # Initialize the root node
         root = NodeItem("GENESIS", None)
