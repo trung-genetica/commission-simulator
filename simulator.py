@@ -1,7 +1,7 @@
 import argparse
 import sys
 from enum import Enum
-from generate_direct_tree import DirectTreeGenerator
+from direct_tree_generator import DirectTreeGenerator
 
 
 class Command(str, Enum):
@@ -47,7 +47,7 @@ class TreeSimulator:
         tree_generator = DirectTreeGenerator(self.input_file)
         tree_generator.parse_csv_to_commission_list()  # Parse the input CSV
         tree_data = tree_generator.build_tree()  # Build the tree structure
-        html_content = tree_generator.generate_html(tree_data)  # Generate HTML content
+        html_content = tree_generator.generate_html(tree_data.to_dict())  # Generate HTML content
         tree_generator.save_html(output_file, html_content)  # Save the HTML file
         print(f"Direct tree has been generated and saved to {output_file}")
 

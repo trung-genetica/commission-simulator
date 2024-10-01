@@ -2,6 +2,26 @@ import csv
 import json
 from collections import defaultdict
 
+class NodeItem:
+    def __init__(self, name):
+        self.name = name
+        self.size = 1
+        self.children = []
+
+    def add_child(self, child_node):
+        self.children.append(child_node)
+        self.size += child_node.size
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "size": self.size,
+            "children": [child.to_dict() for child in self.children]
+        }
+
+    def __repr__(self):
+        return f"{self.name} (size: {self.size}, children: {self.children})"
+
 class DirectTreeGenerator:
     def __init__(self, csv_file):
         self.csv_file = csv_file
@@ -27,34 +47,32 @@ class DirectTreeGenerator:
         all_nodes = set()
         child_nodes = set()
 
-        # Map parent-child relationships
+        # Xây dựng bản đồ quan hệ parent-child
         for parent, child in self.commission_list:
             children_map[parent].append(child)
             all_nodes.add(parent)
             all_nodes.add(child)
             child_nodes.add(child)
 
-        # Identify nodes without parents
+        # Xác định các node không có cha (gốc)
         root_children = all_nodes - child_nodes
 
-        # Create the root node "LIFEAI"
-        root = {"name": "LIFEAI", "size": 1, "children": []}
+        # Tạo node gốc với tên "LIFEAI"
+        root = NodeItem("LIFEAI")
 
-        # Helper function to recursively build nodes
+        # Hàm đệ quy để xây dựng các node
         def build_node(person):
-            node = {"name": person, "size": 1, "children": []}
+            node = NodeItem(person)
 
             for child in children_map.get(person, []):
                 child_node = build_node(child)
-                node["children"].append(child_node)
-                node["size"] += child_node["size"]  # Add size of the child to the parent
+                node.add_child(child_node)  # Thêm node con và tính size
 
             return node
 
-        # Add nodes without parents as children of the root node
+        # Thêm các node gốc con vào node gốc "LIFEAI"
         for root_child in root_children:
-            root["children"].append(build_node(root_child))
-            root["size"] += 1  # Increment size for each direct child
+            root.add_child(build_node(root_child))
 
         return root
 
