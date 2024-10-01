@@ -27,7 +27,7 @@ class NodeItem:
             # Check if the remaining_benefit should be distributed based on gravity_probability
             if functions.gravity_probability(child):
                 # Only the first child with gravity_probability true will get the commission
-                gravity_commission = (INITIAL_GRAVITY_COMMISSION_PERCENT / 100) * remaining_benefit
+                gravity_commission = (INITIAL_GRAVITY_COMMISSION_PERCENT / 100) * BENEFIT
             
                 # Ensure gravity_commission doesn't exceed the remaining_benefit
                 if gravity_commission > remaining_benefit:
