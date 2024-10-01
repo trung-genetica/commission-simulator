@@ -1,4 +1,4 @@
-import functions, time
+import functions
 from constants import BENEFIT, INITIAL_GRAVITY_COMMISSION_PERCENT
 
 # Global pool to collect any remaining benefit
