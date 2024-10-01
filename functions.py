@@ -1,8 +1,8 @@
 import random
-from constants import INITIAL_COMMISSION_PERCENT, INITIAL_POS_PROBABILITY_PERCENT
+from constants import INITIAL_FIRST_LEVEL_COMMISSION_PERCENT, INITIAL_POS_PROBABILITY_PERCENT, INITIAL_GRAVITY_COMMISSION_PERCENT
 
 def get_commission_percent_by_distant(d):
-    return INITIAL_COMMISSION_PERCENT / (2 ** (d - 1))
+    return INITIAL_FIRST_LEVEL_COMMISSION_PERCENT / (2 ** (d - 1))
 
 def get_prob_backward_pos_of_user(user):
     return INITIAL_POS_PROBABILITY_PERCENT / 100  # 10% for now
@@ -31,3 +31,8 @@ def compute_commission(benefit, percent_commission, pow, pos):
 
     result = benefit * percent_commission / 100
     return result       
+
+def gravity_probability(node) -> float:
+    if node.parent is None:
+        return 1.0  # Root node should return 100% probability or some default
+    return node.size / node.parent.size
