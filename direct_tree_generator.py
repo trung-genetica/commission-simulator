@@ -174,7 +174,7 @@ class DirectTreeGenerator:
                     .attr("x", function(d) {{ return d.children || d._children ? -10 : 10; }})
                     .attr("dy", ".35em")
                     .attr("text-anchor", function(d) {{ return d.children || d._children ? "end" : "start"; }})
-                    .text(function(d) {{ return d.name + " (Com: " + d.commission.toFixed(2) + ")"; }})
+                    .text(function(d) {{ return d.name + " (Size: " + d.size + ", Com: " + d.commission.toFixed(2) + ")"; }})
                     .style("fill-opacity", 1e-6);
 
                 var nodeUpdate = node.transition()
