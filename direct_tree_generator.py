@@ -180,12 +180,25 @@ class DirectTreeGenerator:
                     .style("fill", function(d) {{ return d._children ? "lightsteelblue" : "#fff"; }})
                     .on("click", click);
 
+                // Append multiple tspans for multi-line text
                 nodeEnter.append("text")
-                    .attr("x", function(d) {{ return d.children || d._children ? -10 : 10; }})
-                    .attr("dy", ".35em")
-                    .attr("text-anchor", function(d) {{ return d.children || d._children ? "end" : "start"; }})
-                    .text(function(d) {{ return d.name + " (Size: " + d.size + ", Com: " + d.commission.toFixed(2) + ")"; }})
-                    .style("fill-opacity", 1e-6);
+                .attr("x", function(d) {{ return d.children || d._children ? -10 : 10; }})
+                .attr("dy", ".35em")
+                .attr("text-anchor", function(d) {{ return d.children || d._children ? "end" : "start"; }})
+                .style("fill-opacity", 1e-6)
+                .selectAll("tspan")
+                .data(function(d) {{
+                    // Provide two lines of text
+                    return [
+                        d.name,
+                        "(Size: " + d.size + ", Com: " + d.commission.toFixed(2) + ")"
+                    ];
+                }})
+                .enter()
+                .append("tspan")
+                .attr("x", 0)
+                .attr("dy", function(d, i) {{ return i === 0 ? "0em" : "1.2em"; }})  // Control the line spacing
+                .text(function(d) {{ return d; }});
 
                 var nodeUpdate = node.transition()
                     .duration(duration)
